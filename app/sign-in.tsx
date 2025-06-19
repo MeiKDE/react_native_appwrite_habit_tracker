@@ -11,7 +11,10 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Eye, EyeOff, Mail, Lock } from "lucide-react-native";
-import { useAuth } from "./context/AuthContext";
+import { initializeAppwriteClient, signInWithEmailPassword } from "../appwrite";
+
+// Ensure Appwrite client is initialized (ideally only once in your app entry point)
+initializeAppwriteClient();
 
 export default function SignInScreen() {
   const [email, setEmail] = useState("");
@@ -19,7 +22,6 @@ export default function SignInScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { signIn } = useAuth();
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -38,8 +40,12 @@ export default function SignInScreen() {
 
     setIsLoading(true);
     try {
-      await signIn(email, password);
-      router.replace("/(tabs)");
+      const result = await signInWithEmailPassword(email, password);
+      if (result.success) {
+        router.replace("/(tabs)");
+      } else {
+        Alert.alert("Sign In Failed", result.error || "Unable to sign in.");
+      }
     } catch (err: any) {
       Alert.alert(
         "Sign In Error",
