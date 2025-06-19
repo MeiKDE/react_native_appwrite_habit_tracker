@@ -11,20 +11,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Eye, EyeOff, User, Mail, Lock } from "lucide-react-native";
-import {
-  initializeAppwriteClient,
-  signUpWithEmailPassword,
-  signInWithOAuth,
-  OAUTH_PROVIDERS,
-  getAppwriteOAuthUrl,
-  client,
-} from "../appwrite";
-import * as AuthSession from "expo-auth-session";
-import { Account } from "appwrite";
-import * as WebBrowser from "expo-web-browser";
-
-// Ensure Appwrite client is initialized (ideally only once in your app entry point)
-initializeAppwriteClient();
+import { useAuth } from "./context/AuthContext";
 
 export default function SignUpScreen() {
   const [fullName, setFullName] = useState("");
@@ -41,6 +28,7 @@ export default function SignUpScreen() {
     confirmPassword: "",
   });
   const router = useRouter();
+  const { signUp } = useAuth();
 
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -78,12 +66,8 @@ export default function SignUpScreen() {
     if (hasError) return;
     setIsLoading(true);
     try {
-      const result = await signUpWithEmailPassword(email, password, fullName);
-      if (result.success) {
-        router.replace("/(tabs)");
-      } else {
-        Alert.alert("Sign Up Failed", result.error || "Unable to sign up.");
-      }
+      await signUp(email, password, fullName);
+      router.replace("/(tabs)");
     } catch (err: any) {
       Alert.alert(
         "Sign Up Error",
@@ -95,56 +79,10 @@ export default function SignUpScreen() {
   };
 
   const handleSocialSignUp = async (platform: string) => {
-    if (platform === "Google") {
-      setIsLoading(true);
-      try {
-        // 1. Get the redirect URI for your app
-        let redirectUri = AuthSession.makeRedirectUri();
-        // 2. Get the OAuth URL from Appwrite
-        const authUrl =
-          getAppwriteOAuthUrl(OAUTH_PROVIDERS.google, redirectUri) || "";
-        // 3. Open the OAuth URL in a browser and wait for the redirect
-        const result = await WebBrowser.openAuthSessionAsync(
-          authUrl,
-          redirectUri
-        );
-        // 4. Parse the result for userId and secret
-        if (result.type === "success" && result.url) {
-          const url = new URL(result.url);
-          const secret = url.searchParams.get("secret");
-          const userId = url.searchParams.get("userId");
-          if (secret && userId) {
-            // 5. Create a session with Appwrite
-            const accountInstance = new Account(client);
-            await accountInstance.createSession(userId, secret);
-            // 6. Navigate to your app's main screen
-            router.replace("/(tabs)");
-          } else {
-            Alert.alert(
-              "Google Sign Up Failed",
-              "Missing secret or userId in redirect."
-            );
-          }
-        } else {
-          Alert.alert(
-            "Google Sign Up Failed",
-            "OAuth flow was cancelled or failed."
-          );
-        }
-      } catch (err: any) {
-        Alert.alert(
-          "Google Sign Up Error",
-          err.message || "An unexpected error occurred."
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      Alert.alert(
-        "Social Sign Up",
-        `${platform} sign up would be implemented here`
-      );
-    }
+    Alert.alert(
+      "Social Sign Up",
+      `${platform} sign up would be implemented here`
+    );
   };
 
   return (

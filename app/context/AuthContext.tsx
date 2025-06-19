@@ -5,7 +5,12 @@ import React, {
   useState,
   ReactNode,
 } from "react";
-import { getCurrentUser, signIn, signOut, createUser } from "../lib/appwrite";
+import { 
+  getCurrentUserAndProfile, 
+  signInWithEmailPassword, 
+  signOut as appwriteSignOut, 
+  signUpWithEmailPassword 
+} from "../appwrite";
 import { User } from "../types/habit";
 
 interface AuthContextType {
@@ -40,9 +45,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuthState = async () => {
     try {
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
-    } catch {
+      const { user: currentUser } = await getCurrentUserAndProfile();
+      if (currentUser) {
+        setUser({
+          $id: currentUser.$id,
+          name: currentUser.name,
+          email: currentUser.email,
+          prefs: { notifications: true }
+        });
+      }
+    } catch (error) {
       setUser(null);
     } finally {
       setLoading(false);
@@ -51,9 +63,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const handleSignIn = async (email: string, password: string) => {
     try {
-      await signIn(email, password);
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
+      const result = await signInWithEmailPassword(email, password);
+      if (result.success) {
+        const { user: currentUser } = await getCurrentUserAndProfile();
+        if (currentUser) {
+          setUser({
+            $id: currentUser.$id,
+            name: currentUser.name,
+            email: currentUser.email,
+            prefs: { notifications: true }
+          });
+        }
+      } else {
+        throw new Error(result.error || "Sign in failed");
+      }
     } catch (error) {
       throw error;
     }
@@ -65,9 +88,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     name: string
   ) => {
     try {
-      await createUser(email, password, name);
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
+      const result = await signUpWithEmailPassword(email, password, name);
+      if (result.success) {
+        const { user: currentUser } = await getCurrentUserAndProfile();
+        if (currentUser) {
+          setUser({
+            $id: currentUser.$id,
+            name: currentUser.name,
+            email: currentUser.email,
+            prefs: { notifications: true }
+          });
+        }
+      } else {
+        throw new Error(result.error || "Sign up failed");
+      }
     } catch (error) {
       throw error;
     }
@@ -75,7 +109,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await appwriteSignOut();
       setUser(null);
     } catch (error) {
       throw error;

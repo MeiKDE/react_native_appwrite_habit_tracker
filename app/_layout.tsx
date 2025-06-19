@@ -1,7 +1,11 @@
 import { Stack } from "expo-router";
 import { View } from "react-native";
-import { AuthProvider } from "./context/AuthContext"
+import { AuthProvider } from "./context/AuthContext";
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
+import { initializeAppwriteClient } from '../appwrite';
+
+// Initialize Appwrite client at app startup
+initializeAppwriteClient();
 
 export default function RootLayout() {
   useFrameworkReady();
