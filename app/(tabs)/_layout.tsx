@@ -101,15 +101,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ size, color }) => (
-            <CirclePlus size={size} color={color} />
-          ),
-        }}
-      />
     </Tabs>
   );
 }
