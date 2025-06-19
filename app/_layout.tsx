@@ -1,5 +1,4 @@
 import { Stack } from "expo-router";
-import { useFrameworkReady } from "../hooks/useFrameworkReady";
 import { View } from "react-native";
 import { AuthProvider } from "./context/AuthContext"
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
