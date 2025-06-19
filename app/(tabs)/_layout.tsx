@@ -58,9 +58,9 @@
 import { Tabs } from "expo-router";
 import {
   Calendar,
-  Chrome as Home,
+  Home,
   ChartBar as BarChart3,
-  Settings,
+  CirclePlus,
 } from "lucide-react-native";
 import { StyleSheet } from "react-native";
 
@@ -106,7 +106,7 @@ export default function TabLayout() {
         options={{
           title: "Settings",
           tabBarIcon: ({ size, color }) => (
-            <Settings size={size} color={color} />
+            <CirclePlus size={size} color={color} />
           ),
         }}
       />

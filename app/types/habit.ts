@@ -2,7 +2,7 @@ export interface Habit {
   $id: string;
   name: string;
   description?: string;
-  frequency: 'daily' | 'weekly';
+  frequency: "daily" | "weekly";
   weekDays?: number[]; // 0-6, Sunday-Saturday
   reminderTime?: string; // HH:MM format
   reminderMessage?: string;

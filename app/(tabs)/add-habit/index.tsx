@@ -13,11 +13,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft, Calendar, Clock, Palette } from "lucide-react-native";
-import { createHabit } from "/Users/mei/projects/React_Practice_Projects/react-native-appwrite-template/app/lib/appwrite";
-import {
-  getHabitColors,
-  getHabitIcons,
-} from "/Users/mei/projects/React_Practice_Projects/react-native-appwrite-template/app/utils/habitUtils";
+import { createHabit } from "../../lib/appwrite";
+import { getHabitColors, getHabitIcons } from "../../utils/habitUtils";
 
 export default function AddHabitScreen() {
   const [name, setName] = useState("");
