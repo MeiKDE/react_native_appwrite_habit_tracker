@@ -10,7 +10,7 @@ import {
   signInWithEmailPassword, 
   signOut as appwriteSignOut, 
   signUpWithEmailPassword 
-} from "../appwrite";
+} from "../lib/appwrite";
 import { User } from "../types/habit";
 
 interface AuthContextType {
