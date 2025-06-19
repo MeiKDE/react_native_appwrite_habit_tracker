@@ -29,7 +29,7 @@ export default function ProgressScreen() {
       ]);
       setHabits(habitsData);
       setCompletions(completionsData);
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to load progress data");
     } finally {
       setLoading(false);
@@ -122,7 +122,7 @@ export default function ProgressScreen() {
                   {completionRate}%
                 </Text>
               </View>
-              <Text className="text-gray-600 text-sm">Today's Rate</Text>
+              <Text className="text-gray-600 text-sm">Today&apos;s Rate</Text>
             </View>
 
             <View className="bg-white rounded-xl p-4 w-[48%] mb-4">
@@ -180,6 +180,8 @@ export default function ProgressScreen() {
               width={screenWidth - 80}
               height={200}
               chartConfig={chartConfig}
+              yAxisLabel=""
+              yAxisSuffix=""
               style={{
                 marginVertical: 8,
                 borderRadius: 16,

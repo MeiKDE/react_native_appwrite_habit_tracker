@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,24 +7,18 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import { 
-  ArrowLeft, 
-  Eye, 
-  EyeOff, 
-  Mail, 
-  Lock 
-} from 'lucide-react-native';
-import { initializeAppwriteClient, signInWithEmailPassword } from '../appwrite';
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { ArrowLeft, Eye, EyeOff, Mail, Lock } from "lucide-react-native";
+import { initializeAppwriteClient, signInWithEmailPassword } from "../appwrite";
 
 // Ensure Appwrite client is initialized (ideally only once in your app entry point)
 initializeAppwriteClient();
 
 export default function SignInScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -35,12 +29,12 @@ export default function SignInScreen() {
 
   const handleSignIn = async () => {
     if (!validateEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
+      Alert.alert("Error", "Please enter a valid email address");
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long');
+      Alert.alert("Error", "Password must be at least 6 characters long");
       return;
     }
 
@@ -48,25 +42,31 @@ export default function SignInScreen() {
     try {
       const result = await signInWithEmailPassword(email, password);
       if (result.success) {
-        router.replace('/(tabs)');
+        router.replace("/(tabs)");
       } else {
-        Alert.alert('Sign In Failed', result.error || 'Unable to sign in.');
+        Alert.alert("Sign In Failed", result.error || "Unable to sign in.");
       }
     } catch (err: any) {
-      Alert.alert('Sign In Error', err.message || 'An unexpected error occurred.');
+      Alert.alert(
+        "Sign In Error",
+        err.message || "An unexpected error occurred."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSocialSignIn = (platform: string) => {
-    Alert.alert('Social Sign In', `${platform} sign in would be implemented here`);
+    Alert.alert(
+      "Social Sign In",
+      `${platform} sign in would be implemented here`
+    );
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#5856D6' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#5856D6" }}>
       <LinearGradient
-        colors={['#007AFF', '#5856D6']}
+        colors={["#007AFF", "#5856D6"]}
         style={{ flex: 1 }}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -100,7 +100,7 @@ export default function SignInScreen() {
               <View className="mb-6">
                 <TouchableOpacity
                   className="bg-gray-100 rounded-2xl py-4 items-center mb-3"
-                  onPress={() => handleSocialSignIn('Google')}
+                  onPress={() => handleSocialSignIn("Google")}
                   activeOpacity={0.8}
                 >
                   <Text className="text-base font-semibold text-gray-900">
@@ -110,7 +110,7 @@ export default function SignInScreen() {
 
                 <TouchableOpacity
                   className="bg-gray-100 rounded-2xl py-4 items-center mb-3"
-                  onPress={() => handleSocialSignIn('Apple')}
+                  onPress={() => handleSocialSignIn("Apple")}
                   activeOpacity={0.8}
                 >
                   <Text className="text-base font-semibold text-gray-900">
@@ -122,7 +122,9 @@ export default function SignInScreen() {
               {/* Divider */}
               <View className="flex-row items-center my-6">
                 <View className="flex-1 h-px bg-gray-200" />
-                <Text className="text-gray-500 text-sm font-medium px-4">OR</Text>
+                <Text className="text-gray-500 text-sm font-medium px-4">
+                  OR
+                </Text>
                 <View className="flex-1 h-px bg-gray-200" />
               </View>
 
@@ -175,7 +177,7 @@ export default function SignInScreen() {
               {/* Forgot Password Link */}
               <TouchableOpacity
                 className="self-end mb-6"
-                onPress={() => router.push('/forgot-password')}
+                onPress={() => router.push("/forgot-password")}
                 activeOpacity={0.7}
               >
                 <Text className="text-sm text-blue-600 font-medium">
@@ -185,23 +187,25 @@ export default function SignInScreen() {
 
               {/* Sign In Button */}
               <TouchableOpacity
-                className={`rounded-2xl mb-6 shadow-lg ${isLoading ? 'opacity-60' : ''}`}
+                className={`rounded-2xl mb-6 shadow-lg ${
+                  isLoading ? "opacity-60" : ""
+                }`}
                 onPress={handleSignIn}
                 disabled={isLoading}
                 activeOpacity={0.9}
               >
                 <LinearGradient
-                  colors={['#007AFF', '#5856D6']}
+                  colors={["#007AFF", "#5856D6"]}
                   style={{
                     paddingVertical: 20,
                     borderRadius: 16,
-                    alignItems: 'center'
+                    alignItems: "center",
                   }}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
                   <Text className="text-white text-lg font-semibold">
-                    {isLoading ? 'Signing In...' : 'Sign In'}
+                    {isLoading ? "Signing In..." : "Sign In"}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -209,11 +213,11 @@ export default function SignInScreen() {
               {/* Sign Up Link */}
               <TouchableOpacity
                 className="items-center"
-                onPress={() => router.push('/sign-up')}
+                onPress={() => router.push("/sign-up")}
                 activeOpacity={0.7}
               >
                 <Text className="text-base text-gray-500">
-                  Don't have an account?{' '}
+                  Don&apos;t have an account?{" "}
                   <Text className="text-blue-600 font-medium">Sign Up</Text>
                 </Text>
               </TouchableOpacity>

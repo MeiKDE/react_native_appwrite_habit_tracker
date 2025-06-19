@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { useFrameworkReady } from "@/hooks/useFrameworkReady";
+import { useFrameworkReady } from "/Users/mei/projects/React_Practice_Projects/react-native-appwrite-template/app/hooks/useFrameworkReady";
 import { View } from "react-native";
 import { AuthProvider } from "./context/AuthContext";
 

@@ -96,7 +96,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
       {completion?.note && (
         <View className="mt-3 pt-3 border-t border-gray-100">
           <Text className="text-sm text-gray-600 italic">
-            "{completion.note}"
+            `{completion.note}``
           </Text>
         </View>
       )}

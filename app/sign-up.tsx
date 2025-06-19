@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,33 +7,39 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import { 
-  ArrowLeft, 
-  Eye, 
-  EyeOff, 
-  User, 
-  Mail, 
-  Lock 
-} from 'lucide-react-native';
-import { initializeAppwriteClient, signUpWithEmailPassword, signInWithOAuth, OAUTH_PROVIDERS, getAppwriteOAuthUrl, client } from '../appwrite';
-import * as AuthSession from 'expo-auth-session';
-import { Account } from 'appwrite';
-import * as WebBrowser from 'expo-web-browser';
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { ArrowLeft, Eye, EyeOff, User, Mail, Lock } from "lucide-react-native";
+import {
+  initializeAppwriteClient,
+  signUpWithEmailPassword,
+  signInWithOAuth,
+  OAUTH_PROVIDERS,
+  getAppwriteOAuthUrl,
+  client,
+} from "../appwrite";
+import * as AuthSession from "expo-auth-session";
+import { Account } from "appwrite";
+import * as WebBrowser from "expo-web-browser";
 
 // Ensure Appwrite client is initialized (ideally only once in your app entry point)
 initializeAppwriteClient();
 
 export default function SignUpScreen() {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const router = useRouter();
 
   const validateEmail = (email: string) => {
@@ -45,82 +51,106 @@ export default function SignUpScreen() {
   };
 
   const handleSignUp = async () => {
+    let newErrors = {
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    };
+    let hasError = false;
     if (!fullName.trim()) {
-      Alert.alert('Error', 'Please enter your full name');
-      return;
+      newErrors.fullName = "Full name is required";
+      hasError = true;
     }
-
     if (!validateEmail(email)) {
-      Alert.alert('Error', 'Please enter a valid email address');
-      return;
+      newErrors.email = "Please enter a valid email address";
+      hasError = true;
     }
-
     if (!validatePassword(password)) {
-      Alert.alert('Error', 'Password must be at least 6 characters long');
-      return;
+      newErrors.password = "Password must be at least 6 characters";
+      hasError = true;
     }
-
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
-      return;
+      newErrors.confirmPassword = "Passwords do not match";
+      hasError = true;
     }
-
+    setErrors(newErrors);
+    if (hasError) return;
     setIsLoading(true);
     try {
       const result = await signUpWithEmailPassword(email, password, fullName);
       if (result.success) {
-        router.replace('/(tabs)');
+        router.replace("/(tabs)");
       } else {
-        Alert.alert('Sign Up Failed', result.error || 'Unable to sign up.');
+        Alert.alert("Sign Up Failed", result.error || "Unable to sign up.");
       }
     } catch (err: any) {
-      Alert.alert('Sign Up Error', err.message || 'An unexpected error occurred.');
+      Alert.alert(
+        "Sign Up Error",
+        err.message || "An unexpected error occurred."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSocialSignUp = async (platform: string) => {
-    if (platform === 'Google') {
+    if (platform === "Google") {
       setIsLoading(true);
       try {
         // 1. Get the redirect URI for your app
         let redirectUri = AuthSession.makeRedirectUri();
         // 2. Get the OAuth URL from Appwrite
-        const authUrl = getAppwriteOAuthUrl(OAUTH_PROVIDERS.google, redirectUri) || '';
+        const authUrl =
+          getAppwriteOAuthUrl(OAUTH_PROVIDERS.google, redirectUri) || "";
         // 3. Open the OAuth URL in a browser and wait for the redirect
-        const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+        const result = await WebBrowser.openAuthSessionAsync(
+          authUrl,
+          redirectUri
+        );
         // 4. Parse the result for userId and secret
-        if (result.type === 'success' && result.url) {
+        if (result.type === "success" && result.url) {
           const url = new URL(result.url);
-          const secret = url.searchParams.get('secret');
-          const userId = url.searchParams.get('userId');
+          const secret = url.searchParams.get("secret");
+          const userId = url.searchParams.get("userId");
           if (secret && userId) {
             // 5. Create a session with Appwrite
             const accountInstance = new Account(client);
             await accountInstance.createSession(userId, secret);
             // 6. Navigate to your app's main screen
-            router.replace('/(tabs)');
+            router.replace("/(tabs)");
           } else {
-            Alert.alert('Google Sign Up Failed', 'Missing secret or userId in redirect.');
+            Alert.alert(
+              "Google Sign Up Failed",
+              "Missing secret or userId in redirect."
+            );
           }
         } else {
-          Alert.alert('Google Sign Up Failed', 'OAuth flow was cancelled or failed.');
+          Alert.alert(
+            "Google Sign Up Failed",
+            "OAuth flow was cancelled or failed."
+          );
         }
       } catch (err: any) {
-        Alert.alert('Google Sign Up Error', err.message || 'An unexpected error occurred.');
+        Alert.alert(
+          "Google Sign Up Error",
+          err.message || "An unexpected error occurred."
+        );
       } finally {
         setIsLoading(false);
       }
     } else {
-      Alert.alert('Social Sign Up', `${platform} sign up would be implemented here`);
+      Alert.alert(
+        "Social Sign Up",
+        `${platform} sign up would be implemented here`
+      );
     }
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#5856D6' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#5856D6" }}>
       <LinearGradient
-        colors={['#007AFF', '#5856D6']}
+        colors={["#007AFF", "#5856D6"]}
         style={{ flex: 1 }}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -154,7 +184,7 @@ export default function SignUpScreen() {
               <View className="mb-6">
                 <TouchableOpacity
                   className="bg-gray-100 rounded-2xl py-4 items-center mb-3"
-                  onPress={() => handleSocialSignUp('Google')}
+                  onPress={() => handleSocialSignUp("Google")}
                   activeOpacity={0.8}
                 >
                   <Text className="text-base font-semibold text-gray-900">
@@ -164,7 +194,7 @@ export default function SignUpScreen() {
 
                 <TouchableOpacity
                   className="bg-gray-100 rounded-2xl py-4 items-center mb-3"
-                  onPress={() => handleSocialSignUp('Apple')}
+                  onPress={() => handleSocialSignUp("Apple")}
                   activeOpacity={0.8}
                 >
                   <Text className="text-base font-semibold text-gray-900">
@@ -176,14 +206,16 @@ export default function SignUpScreen() {
               {/* Divider */}
               <View className="flex-row items-center my-6">
                 <View className="flex-1 h-px bg-gray-200" />
-                <Text className="text-gray-500 text-sm font-medium px-4">OR</Text>
+                <Text className="text-gray-500 text-sm font-medium px-4">
+                  OR
+                </Text>
                 <View className="flex-1 h-px bg-gray-200" />
               </View>
 
               {/* Input Fields */}
               <View className="mb-5">
                 <Text className="text-base font-semibold text-gray-900 mb-2">
-                  Full Name
+                  Full Name <Text style={{ color: "red" }}>*</Text>
                 </Text>
                 <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-1">
                   <User size={20} color="#8E8E93" className="mr-3" />
@@ -192,15 +224,24 @@ export default function SignUpScreen() {
                     placeholder="Enter your full name"
                     placeholderTextColor="#8E8E93"
                     value={fullName}
-                    onChangeText={setFullName}
+                    onChangeText={(text) => {
+                      setFullName(text);
+                      if (errors.fullName)
+                        setErrors({ ...errors, fullName: "" });
+                    }}
                     autoCapitalize="words"
                   />
                 </View>
+                {errors.fullName ? (
+                  <Text style={{ color: "red", fontSize: 12, marginTop: 4 }}>
+                    {errors.fullName}
+                  </Text>
+                ) : null}
               </View>
 
               <View className="mb-5">
                 <Text className="text-base font-semibold text-gray-900 mb-2">
-                  Email Address
+                  Email Address <Text style={{ color: "red" }}>*</Text>
                 </Text>
                 <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-1">
                   <Mail size={20} color="#8E8E93" className="mr-3" />
@@ -209,16 +250,24 @@ export default function SignUpScreen() {
                     placeholder="Enter your email"
                     placeholderTextColor="#8E8E93"
                     value={email}
-                    onChangeText={setEmail}
+                    onChangeText={(text) => {
+                      setEmail(text);
+                      if (errors.email) setErrors({ ...errors, email: "" });
+                    }}
                     keyboardType="email-address"
                     autoCapitalize="none"
                   />
                 </View>
+                {errors.email ? (
+                  <Text style={{ color: "red", fontSize: 12, marginTop: 4 }}>
+                    {errors.email}
+                  </Text>
+                ) : null}
               </View>
 
               <View className="mb-5">
                 <Text className="text-base font-semibold text-gray-900 mb-2">
-                  Password
+                  Password <Text style={{ color: "red" }}>*</Text>
                 </Text>
                 <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-1">
                   <Lock size={20} color="#8E8E93" className="mr-3" />
@@ -227,7 +276,11 @@ export default function SignUpScreen() {
                     placeholder="Create password"
                     placeholderTextColor="#8E8E93"
                     value={password}
-                    onChangeText={setPassword}
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      if (errors.password)
+                        setErrors({ ...errors, password: "" });
+                    }}
                     secureTextEntry={!showPassword}
                   />
                   <TouchableOpacity
@@ -241,11 +294,16 @@ export default function SignUpScreen() {
                     )}
                   </TouchableOpacity>
                 </View>
+                {errors.password ? (
+                  <Text style={{ color: "red", fontSize: 12, marginTop: 4 }}>
+                    {errors.password}
+                  </Text>
+                ) : null}
               </View>
 
               <View className="mb-5">
                 <Text className="text-base font-semibold text-gray-900 mb-2">
-                  Confirm Password
+                  Confirm Password <Text style={{ color: "red" }}>*</Text>
                 </Text>
                 <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-1">
                   <Lock size={20} color="#8E8E93" className="mr-3" />
@@ -254,7 +312,11 @@ export default function SignUpScreen() {
                     placeholder="Confirm password"
                     placeholderTextColor="#8E8E93"
                     value={confirmPassword}
-                    onChangeText={setConfirmPassword}
+                    onChangeText={(text) => {
+                      setConfirmPassword(text);
+                      if (errors.confirmPassword)
+                        setErrors({ ...errors, confirmPassword: "" });
+                    }}
                     secureTextEntry={!showConfirmPassword}
                   />
                   <TouchableOpacity
@@ -268,46 +330,58 @@ export default function SignUpScreen() {
                     )}
                   </TouchableOpacity>
                 </View>
+                {errors.confirmPassword ? (
+                  <Text style={{ color: "red", fontSize: 12, marginTop: 4 }}>
+                    {errors.confirmPassword}
+                  </Text>
+                ) : null}
               </View>
 
               {/* Sign Up Button */}
               <TouchableOpacity
-                className={`rounded-2xl mt-2 mb-6 shadow-lg ${isLoading ? 'opacity-60' : ''}`}
+                className={`rounded-2xl mt-2 mb-6 shadow-lg ${
+                  isLoading ? "opacity-60" : ""
+                }`}
                 onPress={handleSignUp}
                 disabled={isLoading}
                 activeOpacity={0.9}
               >
                 <LinearGradient
-                  colors={['#007AFF', '#5856D6']}
+                  colors={["#007AFF", "#5856D6"]}
                   style={{
                     paddingVertical: 20,
                     borderRadius: 16,
-                    alignItems: 'center'
+                    alignItems: "center",
                   }}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
                   <Text className="text-white text-lg font-semibold">
-                    {isLoading ? 'Creating Account...' : 'Sign Up'}
+                    {isLoading ? "Creating Account..." : "Sign Up"}
                   </Text>
                 </LinearGradient>
               </TouchableOpacity>
 
               {/* Terms and Privacy */}
               <Text className="text-sm text-gray-500 text-center leading-5 mb-6">
-                By signing up, you agree to our{' '}
-                <Text className="text-blue-600 font-medium">Terms of Service</Text> and{' '}
-                <Text className="text-blue-600 font-medium">Privacy Policy</Text>
+                By signing up, you agree to our{" "}
+                <Text className="text-blue-600 font-medium">
+                  Terms of Service
+                </Text>{" "}
+                and{" "}
+                <Text className="text-blue-600 font-medium">
+                  Privacy Policy
+                </Text>
               </Text>
 
               {/* Sign In Link */}
               <TouchableOpacity
                 className="items-center"
-                onPress={() => router.push('/sign-in')}
+                onPress={() => router.push("/sign-in")}
                 activeOpacity={0.7}
               >
                 <Text className="text-base text-gray-500">
-                  Already have an account?{' '}
+                  Already have an account?{" "}
                   <Text className="text-blue-600 font-medium">Sign In</Text>
                 </Text>
               </TouchableOpacity>
